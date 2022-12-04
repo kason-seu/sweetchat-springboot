@@ -1,10 +1,9 @@
 package com.chat.service.impl;
 
+import com.chat.enums.MsgSignFlagEnum;
 import com.chat.enums.SearchFriendsStatusEnum;
-import com.chat.mapper.FriendsRequestMapper;
-import com.chat.mapper.MyFriendsMapper;
-import com.chat.mapper.UsersMapper;
-import com.chat.mapper.UsersMapperCustom;
+import com.chat.mapper.*;
+import com.chat.pojo.ChatMsg;
 import com.chat.pojo.FriendsRequest;
 import com.chat.pojo.MyFriends;
 import com.chat.pojo.Users;
@@ -24,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
-@Service
+@Service("userService")
 public class UserServiceImpl implements UserService {
 	@Autowired
 	private QRCodeUtils qrCodeUtils;
@@ -43,6 +42,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UsersMapperCustom usersMapperCustom;
+
+	@Autowired
+	ChatMsgMapper chatMsgMapper;
 	
 	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
@@ -227,5 +229,27 @@ public class UserServiceImpl implements UserService {
 	public List<MyFriendsVO> queryMyFriends(String userId) {
 		List<MyFriendsVO> myFirends = usersMapperCustom.queryMyFriends(userId);
 		return myFirends;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public String saveMsg(com.chat.nety.ChatMsg  chatMsg) {
+
+		ChatMsg msgDB = new ChatMsg();
+		String msgId = sid.nextShort();
+		msgDB.setId(msgId);
+		msgDB.setAcceptUserId(chatMsg.getReceiverId());
+		msgDB.setSendUserId(chatMsg.getSenderId());
+		msgDB.setCreateTime(new Date());
+		msgDB.setSignFlag(MsgSignFlagEnum.unsign.type);
+		msgDB.setMsg(chatMsg.getMsg());
+		chatMsgMapper.insert(msgDB);
+		return msgId;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void updateMsgSigned(List<String> msgIdList) {
+		usersMapperCustom.batchUpdateMsgSigned(msgIdList);
 	}
 }

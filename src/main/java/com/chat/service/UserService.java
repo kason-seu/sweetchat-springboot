@@ -1,5 +1,6 @@
 package com.chat.service;
 
+import com.chat.nety.ChatMsg;
 import com.chat.pojo.Users;
 import com.chat.pojo.vo.FriendRequestVO;
 import com.chat.pojo.vo.MyFriendsVO;
@@ -52,5 +53,13 @@ public interface UserService {
 	public List<MyFriendsVO> queryMyFriends(String userId);
 
 
-	
+	/**
+	 * @Description: 保存聊天消息到数据库
+	 */
+	public String saveMsg(ChatMsg chatMsg);
+	/**
+	 * @Description: 批量签收消息
+	 */
+	public void updateMsgSigned(List<String> msgIdList);
+
 }
